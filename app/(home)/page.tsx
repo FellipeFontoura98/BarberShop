@@ -17,7 +17,9 @@ export default function Home() {
         </p>
       </div>
 
+      <div className="px-5 mt-6">
       <Search />
+      </div>
     </div>
   )
 
