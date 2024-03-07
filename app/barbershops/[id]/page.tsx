@@ -1,4 +1,9 @@
+import { Button } from "@/app/_components/ui/button";
 import { db } from "@/app/_lib/prisma"
+import { ChevronLeftIcon, MapPinIcon, MenuIcon, StarIcon } from "lucide-react";
+import Image from "next/image";
+import BarbershopInfo from "./_components/barbershop-info";
+
 
 interface BarbershopDetailsPageProps{
     params: {
@@ -7,7 +12,7 @@ interface BarbershopDetailsPageProps{
 }
 
 const BarbershopDetailsPage = async ({params}: BarbershopDetailsPageProps) => {
-    if (params.id) {
+    if (!params.id) {
         // TODO: redirecionar para home page
         return null;
     }
@@ -23,9 +28,9 @@ const BarbershopDetailsPage = async ({params}: BarbershopDetailsPageProps) => {
         return null;
     }
     
-    return ( 
-        <h1>{params.id}</h1>
-     );
+    return (
+        <BarbershopInfo barbershop={barbershop} />
+    );
 }
  
 export default BarbershopDetailsPage;
