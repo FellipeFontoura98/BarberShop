@@ -3,22 +3,29 @@
 import { Button } from "@/app/_components/ui/button";
 import { Calendar } from "@/app/_components/ui/calendar";
 import { Card, CardContent } from "@/app/_components/ui/card";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/app/_components/ui/sheet";
-import { Service } from "@prisma/client";
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/app/_components/ui/sheet";
+import { Barbershop, Service } from "@prisma/client";
 import { ptBR } from "date-fns/locale";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { generateDayTimeList } from "../_helpers/hours";
+import { format } from "date-fns";
 
 interface ServiceItemProps {
+  barbershop: Barbershop;
   service: Service;
   isAuthenticated: boolean;
 }
 
-const ServiceItem = ({ service, isAuthenticated }: ServiceItemProps) => {
-  const [date, setDate] = useState<Date | undefined>(new Date())
+const ServiceItem = ({ service, barbershop, isAuthenticated }: ServiceItemProps) => {
+  const [date, setDate] = useState<Date | undefined>(undefined)
   const [hour, setHour] = useState<string | undefined>()
+
+  const handleDateClick = (date: Date | undefined) => {
+    setDate(date);
+    setHour(undefined)
+  }
 
   const handleHourClick = (time: string) => {
     setHour(time)
@@ -71,13 +78,13 @@ const ServiceItem = ({ service, isAuthenticated }: ServiceItemProps) => {
                       <SheetTitle>Fazer Reserva</SheetTitle>
                     </SheetHeader>
                     
+                    <div className="py-6">
                     <Calendar
                       mode="single"
                       selected={date}
-                      onSelect={setDate}
+                      onSelect={handleDateClick}
                       locale={ptBR}
                       fromDate={new Date()}
-                      className="mt-6"
                       styles={{
                         head_cell: {
                           width: "100%",
@@ -102,9 +109,10 @@ const ServiceItem = ({ service, isAuthenticated }: ServiceItemProps) => {
                         }
                       }}
                     />
+                    </div>
 
                       {date && (
-                        <div className="flex gap-3 overflow-auto py-6 px-5 border-y border-solid 
+                        <div className="flex gap-3 overflow-auto py-6 px-5 border-t border-solid 
                         border-secundary [&::-webkit-scrollbar]:hidden">
                           {timeList.map((time) => (
                             <Button onClick={() => handleHourClick(time)} variant={
@@ -115,6 +123,47 @@ const ServiceItem = ({ service, isAuthenticated }: ServiceItemProps) => {
                           ))}
                         </div>
                       )}
+
+                      <div className="py-6 px-5 border-t border-solid border-secundary">
+                        <Card>
+                          <CardContent className="p-3 gap-3 flex flex-col">
+                            <div className="flex justify-between">
+                              <h2 className="font-bold">{service.name}</h2>
+                              <h3 className="font-bold text-sm">
+                                {Intl.NumberFormat("pt-BR", {
+                                style: "currency",
+                                currency: "BRL",
+                                }).format(Number(service.price))}</h3>
+                            </div>
+
+                          {date && (
+                             <div className="flex justify-between">
+                              <h3 className="text-gray-400 text-sm">Data</h3>
+                              <h4 className="text-sm cap">{format(date, "dd 'de' MMMM", {
+                                locale: ptBR,
+                              })}
+                              </h4>
+                             </div>
+                          )}
+
+                          {hour && (
+                            <div className="flex justify-between">
+                              <h3 className="text-gray-400 text-sm">Horário</h3>
+                              <h4 className="text-sm">{hour}</h4>
+                            </div>
+                          )}
+
+                            <div className="flex justify-between">
+                              <h3 className="text-gray-400 text-sm">Barbearia</h3>
+                              <h4 className="text-sm">{barbershop.name}</h4>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+
+                      <SheetFooter className="px-5">
+                        <Button disabled={!hour || !date}>Confirmar reserva</Button>
+                      </SheetFooter>
                   </SheetContent>
                 </Sheet>
             </div>
@@ -122,6 +171,8 @@ const ServiceItem = ({ service, isAuthenticated }: ServiceItemProps) => {
         </div>
       </CardContent>
     </Card>
+
+                            
   );
 };
 
