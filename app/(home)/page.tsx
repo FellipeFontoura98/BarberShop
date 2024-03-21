@@ -5,12 +5,12 @@ import Search from "./_components/search";
 import BookingItem from "../_components/booking-item";
 import { db } from "../_lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]/route";
 import BarbershopItem from "./barbershop-item";
-
+import { authOptions } from "../_lib/auth";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
+
   const [barbershops, confirmedBookings] = await Promise.all([
     db.barbershop.findMany({}),
     session?.user
@@ -28,6 +28,7 @@ export default async function Home() {
         })
       : Promise.resolve([]),
   ]);
+
   return (
     <div>
       <Header />
@@ -42,9 +43,11 @@ export default async function Home() {
           })}
         </p>
       </div>
+
       <div className="px-5 mt-6">
         <Search />
       </div>
+
       <div className="mt-6">
         {confirmedBookings.length > 0 && (
           <>
@@ -57,21 +60,26 @@ export default async function Home() {
           </>
         )}
       </div>
+
       <div className="mt-6">
         <h2 className="px-5 text-xs mb-3 uppercase text-gray-400 font-bold">Recomendados</h2>
+
         <div className="flex px-5 gap-4 overflow-x-auto [&::-webkit-scrollbar]:hidden">
           {barbershops.map((barbershop) => (
             <BarbershopItem key={barbershop.id} barbershop={barbershop} />
           ))}
         </div>
       </div>
-      <div className="flex px-5 gap-4 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+
+      <div className="mt-6 mb-[4.5rem]">
+        <h2 className="px-5 text-xs mb-3 uppercase text-gray-400 font-bold">Populares</h2>
+
+        <div className="flex px-5 gap-4 overflow-x-auto [&::-webkit-scrollbar]:hidden">
           {barbershops.map((barbershop) => (
-            <div key={barbershop.id} className="min-w-[167px] max-w-[167px]">
-              <BarbershopItem key={barbershop.id} barbershop={barbershop} />
-            </div>
+            <BarbershopItem key={barbershop.id} barbershop={barbershop} />
           ))}
         </div>
       </div>
+    </div>
   );
 }
