@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { getDayBookings } from "../_actions/get-booking";
 
+
 interface ServiceItemProps {
   barbershop: Barbershop;
   service: Service;
@@ -36,17 +37,16 @@ const ServiceItem = ({ service, barbershop, isAuthenticated }: ServiceItemProps)
 
   useEffect(() => {
     if (!date) {
-      return
+      return;
     }
 
     const refreshAvailableHours = async () => {
-      const _dayBookings = await getDayBookings(date)
-
+      const _dayBookings = await getDayBookings(barbershop.id, date);
       setDayBookings(_dayBookings);
-    }
+    };
 
     refreshAvailableHours();
-  })
+  }, [date, barbershop.id]);
 
   const handleDateClick = (date: Date | undefined) => {
     setDate(date);
@@ -104,27 +104,26 @@ const ServiceItem = ({ service, barbershop, isAuthenticated }: ServiceItemProps)
 
   const timeList = useMemo(() => {
     if (!date) {
-      return []
+      return [];
     }
 
-    return generateDayTimeList(date).filter(time => {
-
+    return generateDayTimeList(date).filter((time) => {
       const timeHour = Number(time.split(":")[0]);
       const timeMinutes = Number(time.split(":")[1]);
 
-      const booking = dayBookings.find(booking => {
+      const booking = dayBookings.find((booking) => {
         const bookingHour = booking.date.getHours();
         const bookingMinutes = booking.date.getMinutes();
 
-        return bookingHour == timeHour && bookingMinutes == timeMinutes;
-      })
+        return bookingHour === timeHour && bookingMinutes === timeMinutes;
+      });
 
       if (!booking) {
-        return true
+        return true;
       }
 
-      return false
-    })
+      return false;
+    });
   }, [date, dayBookings]);
 
   return (
